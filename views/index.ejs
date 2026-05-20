@@ -1,0 +1,144 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <div>
+      <h1 class="dashboard-title">Halo, <%= currentUser ? currentUser.username : 'there' %> 👋</h1>
+      <p class="dashboard-subtitle">
+        Managing <%= notes.length %> fluid idea<%= notes.length !== 1 ? 's' : '' %> across your workspace
+      </p>
+    </div>
+    <div class="dashboard-actions">
+      <% 
+        const isAsc = sort === 'date_asc';
+        const nextSort = isAsc ? 'date_desc' : 'date_asc';
+        const sortParams = new URLSearchParams({ search, tag: activeTag, sort: nextSort }).toString();
+      %>
+      <a href="/?<%= sortParams %>" class="btn-action <%= sort ? 'active' : '' %>">
+        <i class="bi bi-calendar3"></i>
+        SORT BY DATE <i class="bi bi-arrow-<%= isAsc ? 'up' : 'down' %>"></i>
+      </a>
+      <button type="button" class="btn-action" id="toggleView">
+        <i class="bi bi-grid-3x3-gap-fill" id="viewIcon"></i>
+        <span id="viewLabel">GRID VIEW</span>
+      </button>
+    </div>
+  </div>
+
+  <% if (search || activeTag) { %>
+  <div class="filter-indicator">
+    <% if (search) { %>
+      <span class="filter-badge">
+        <i class="bi bi-search"></i> "<%= search %>"
+        <a href="/<%= activeTag ? '?tag=' + encodeURIComponent(activeTag) : '' %>" class="filter-remove">×</a>
+      </span>
+    <% } %>
+    <% if (activeTag) { %>
+      <span class="filter-badge">
+        <i class="bi bi-tag-fill"></i> <%= activeTag %>
+        <a href="/<%= search ? '?search=' + encodeURIComponent(search) : '' %>" class="filter-remove">×</a>
+      </span>
+    <% } %>
+  </div>
+  <% } %>
+
+  <% if (notes.length === 0) { %>
+  <% if (!search && !activeTag) { %>
+  <!-- Welcome state untuk user baru -->
+  <div class="welcome-state">
+    <div class="welcome-illustration">🌟</div>
+    <h2 class="welcome-title">Selamat datang di Tag Notes!</h2>
+    <p class="welcome-desc">Ini adalah ruang pribadimu untuk mencatat ide, pikiran, dan hal-hal penting.<br>Mulai dengan membuat catatan pertamamu.</p>
+    <a href="/notes/new" class="btn-primary" style="margin-top: 8px;">
+      <i class="bi bi-plus-lg"></i> Buat Catatan Pertama
+    </a>
+  </div>
+  <% } else { %>
+  <div class="empty-state">
+    <div class="empty-icon">🔍</div>
+    <h3>Tidak ada hasil</h3>
+    <p>Tidak ada catatan yang cocok dengan filter yang dipilih.</p>
+    <a href="/" class="btn-primary">Lihat Semua Catatan</a>
+  </div>
+  <% } %>
+  <% } else { %>
+  <div class="notes-grid" id="notesContainer">
+    <% notes.forEach((note) => { %>
+    <div class="note-card" style="background-color: <%= note.color %>;" onclick="window.location='/notes/<%= note.id %>'">
+      <div class="card-actions-top">
+        <a href="/notes/<%= note.id %>/edit" class="card-action-btn card-edit-btn" onclick="event.stopPropagation()" title="Edit">
+          <i class="bi bi-pencil-fill"></i>
+        </a>
+        <form action="/notes/<%= note.id %>/delete" method="POST" style="display:inline" onsubmit="event.stopPropagation(); return confirm('Hapus catatan ini?')">
+          <button type="submit" class="card-action-btn card-delete-btn" onclick="event.stopPropagation()" title="Hapus">
+            <i class="bi bi-trash-fill"></i>
+          </button>
+        </form>
+      </div>
+
+      <% if (note.first_image) { %>
+      <div class="card-image">
+        <img src="<%= note.first_image %>" alt="<%= note.title %>" loading="lazy">
+      </div>
+      <% } %>
+
+      <div class="card-body">
+        <h3 class="card-title"><%= note.title %></h3>
+        <p class="card-preview">
+          <%= note.content.length > 120 ? note.content.substring(0, 120) + '...' : note.content %>
+        </p>
+
+        <% if (note.tags && note.tags.length > 0) { %>
+        <div class="card-tags">
+          <% note.tags.slice(0, 3).forEach(tag => { %>
+          <a href="/?tag=<%= encodeURIComponent(tag.name) %>" class="card-tag-pill" onclick="event.stopPropagation()"><%= tag.name %></a>
+          <% }) %>
+          <% if (note.tags.length > 3) { %>
+          <span class="card-tag-more">+<%= note.tags.length - 3 %></span>
+          <% } %>
+        </div>
+        <% } %>
+
+        <div class="card-footer">
+          <span class="card-date">
+            <%= new Date(note.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase() %>
+          </span>
+        </div>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+  <% } %>
+</div>
+
+<script>
+(function () {
+  const container = document.getElementById('notesContainer');
+  const toggleBtn = document.getElementById('toggleView');
+  const viewIcon = document.getElementById('viewIcon');
+  const viewLabel = document.getElementById('viewLabel');
+  if (!container || !toggleBtn) return;
+
+  let isGrid = localStorage.getItem('notesView') !== 'list';
+
+  function applyView() {
+    if (isGrid) {
+      container.classList.remove('notes-list');
+      container.classList.add('notes-grid');
+      viewIcon.className = 'bi bi-list-ul';
+      viewLabel.textContent = 'LIST VIEW';
+    } else {
+      container.classList.remove('notes-grid');
+      container.classList.add('notes-list');
+      viewIcon.className = 'bi bi-grid-3x3-gap-fill';
+      viewLabel.textContent = 'GRID VIEW';
+    }
+  }
+
+  applyView();
+
+  toggleBtn.addEventListener('click', function () {
+    isGrid = !isGrid;
+    localStorage.setItem('notesView', isGrid ? 'grid' : 'list');
+    applyView();
+  });
+})();
+</script>

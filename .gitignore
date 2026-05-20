@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Environment variables (berisi credentials/secrets)
+.env
+.env.local
+.env.production
+
+# Upload files (file user, tidak perlu di-push)
+public/uploads/*
+!public/uploads/.gitkeep
+
+# Logs
+*.log
+npm-debug.log*
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Migration/debug scripts (opsional, hapus baris ini kalau mau ikut push)
+# scripts/

@@ -1,0 +1,463 @@
+<header class="app-header">
+  <div class="header-search">
+    <form action="/" method="GET" class="search-form">
+      <% if (typeof activeTag !== 'undefined' && activeTag) { %>
+        <input type="hidden" name="tag" value="<%= activeTag %>">
+      <% } %>
+      <div class="search-input-wrapper">
+        <i class="bi bi-search search-icon"></i>
+        <input 
+          type="text" 
+          name="search" 
+          class="search-input" 
+          placeholder="Search notes, tags, or content..."
+          value="<%= typeof search !== 'undefined' ? search : '' %>"
+          autocomplete="off"
+        >
+      </div>
+    </form>
+  </div>
+  <div class="header-avatar" style="position:relative;">
+    <div class="avatar-circle" id="avatarBtn" title="Profil">
+      <i class="bi bi-person-fill"></i>
+    </div>
+
+    <!-- Profile Popup -->
+    <div class="profile-popup" id="profilePopup">
+      <div class="profile-popup-header">
+        <div class="profile-avatar-lg">
+          <i class="bi bi-person-fill"></i>
+        </div>
+        <div class="profile-header-info">
+          <div class="profile-name" id="profileDisplayName"><%= currentUser ? currentUser.username : '' %></div>
+          <div class="profile-email-display" id="profileDisplayEmail"></div>
+        </div>
+      </div>
+
+      <!-- Username field -->
+      <div class="profile-field" id="fieldUsername">
+        <div class="profile-field-label">Username</div>
+        <div class="profile-field-value" id="usernameDisplay" title="Klik untuk edit"></div>
+        <input type="text" class="profile-field-input" id="usernameInput" placeholder="Username" style="display:none;">
+        <div class="profile-field-actions" id="usernameActions" style="display:none;">
+          <button class="pf-btn-save" id="saveUsername">Simpan</button>
+          <button class="pf-btn-cancel" id="cancelUsername">Batal</button>
+        </div>
+      </div>
+
+      <!-- Email field -->
+      <div class="profile-field" id="fieldEmail">
+        <div class="profile-field-label">Email</div>
+        <div class="profile-field-value" id="emailDisplay" title="Klik untuk edit"></div>
+        <input type="email" class="profile-field-input" id="emailInput" placeholder="Email" style="display:none;">
+        <div class="profile-field-actions" id="emailActions" style="display:none;">
+          <button class="pf-btn-save" id="saveEmail">Simpan</button>
+          <button class="pf-btn-cancel" id="cancelEmail">Batal</button>
+        </div>
+      </div>
+
+      <!-- Password field -->
+      <div class="profile-field profile-field-clickable" id="fieldPassword">
+        <div class="profile-field-label">Password</div>
+        <div class="profile-field-value">••••••••</div>
+        <i class="bi bi-chevron-right pf-chevron"></i>
+      </div>
+
+      <div id="profileMsg" class="profile-msg" style="display:none;"></div>
+
+      <div class="profile-divider"></div>
+      <form action="/logout" method="POST">
+        <button type="submit" class="profile-logout-btn">
+          <i class="bi bi-box-arrow-right"></i> Keluar
+        </button>
+      </form>
+    </div>
+
+    <!-- Password Modal -->
+    <div class="pw-modal-overlay" id="pwModalOverlay">
+      <div class="pw-modal">
+        <div class="pw-modal-header">
+          <span>Ganti Password</span>
+          <button class="pw-modal-close" id="pwModalClose"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div id="passwordMsg" class="profile-msg" style="display:none; margin-bottom:12px;"></div>
+        <form id="passwordForm">
+          <label class="profile-label">Password Saat Ini</label>
+          <input type="password" name="current_password" class="profile-input" placeholder="••••••••" required>
+          <label class="profile-label">Password Baru</label>
+          <input type="password" name="new_password" class="profile-input" placeholder="Min. 8 karakter" required minlength="8">
+          <button type="submit" class="profile-btn">Update Password</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</header>
+
+<style>
+.profile-popup {
+  display: none;
+  position: fixed;
+  width: 300px;
+  background: #fff;
+  border: 1.5px solid #ede8f5;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(124,58,237,0.12);
+  z-index: 9999;
+  padding: 20px;
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+}
+.profile-popup.open { display: block; }
+.profile-popup-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0ebff;
+}
+.profile-avatar-lg {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #e0d8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7c3aed;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+.profile-name { font-size: 0.95rem; font-weight: 700; color: #1a1a2e; }
+.profile-email-display { font-size: 0.75rem; color: #888; margin-top: 2px; }
+
+/* Field rows */
+.profile-field {
+  padding: 10px 0;
+  border-bottom: 1px solid #f5f3ff;
+}
+.profile-field:last-of-type { border-bottom: none; }
+.profile-field-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #aaa;
+  margin-bottom: 4px;
+}
+.profile-field-value {
+  font-size: 0.875rem;
+  color: #1a1a2e;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.profile-field-value:hover { background: #f5f3ff; color: #7c3aed; }
+.profile-field-value .edit-icon { font-size: 0.7rem; opacity: 0; transition: opacity 0.15s; }
+.profile-field-value:hover .edit-icon { opacity: 1; }
+
+.profile-field-clickable {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 10px 0;
+  border-bottom: 1px solid #f5f3ff;
+}
+.profile-field-clickable:hover .profile-field-value { background: #f5f3ff; color: #7c3aed; }
+.pf-chevron { margin-left: auto; color: #ccc; font-size: 0.75rem; }
+.profile-field-clickable:hover .pf-chevron { color: #7c3aed; }
+
+.profile-field-input {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1.5px solid #7c3aed;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.875rem;
+  color: #1a1a2e;
+  outline: none;
+  margin-top: 2px;
+}
+.profile-field-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.pf-btn-save {
+  padding: 5px 14px;
+  background: #1a1a2e;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.pf-btn-save:hover { background: #2d2d4e; }
+.pf-btn-cancel {
+  padding: 5px 14px;
+  background: none;
+  color: #888;
+  border: 1.5px solid #e0d8f0;
+  border-radius: 7px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.pf-btn-cancel:hover { background: #f5f3ff; color: #7c3aed; }
+
+.profile-divider { height: 1px; background: #f0ebff; margin: 12px 0; }
+.profile-logout-btn {
+  width: 100%;
+  padding: 9px;
+  background: none;
+  color: #ef4444;
+  border: 1.5px solid #fecaca;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.profile-logout-btn:hover { background: #fef2f2; }
+
+.profile-msg {
+  padding: 7px 10px;
+  border-radius: 7px;
+  font-size: 0.78rem;
+  margin-top: 8px;
+}
+.profile-msg.success { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+.profile-msg.error { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+
+/* Password Modal */
+.pw-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+}
+.pw-modal-overlay.open { display: flex; }
+.pw-modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  width: 340px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+}
+.pw-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+.pw-modal-close {
+  background: none;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0;
+}
+.pw-modal-close:hover { color: #1a1a2e; }
+.profile-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #555;
+  display: block;
+  margin-bottom: 4px;
+}
+.profile-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1.5px solid #e0d8f0;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.82rem;
+  color: #1a1a2e;
+  outline: none;
+  margin-bottom: 12px;
+  transition: border-color 0.15s;
+}
+.profile-input:focus { border-color: #7c3aed; }
+.profile-btn {
+  width: 100%;
+  padding: 10px;
+  background: #1a1a2e;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.profile-btn:hover { background: #2d2d4e; }
+</style>
+
+<script>
+(function () {
+  const btn = document.getElementById('avatarBtn');
+  const popup = document.getElementById('profilePopup');
+  if (!btn || !popup) return;
+
+  // Load current user data
+  fetch('/profile/data')
+    .then(r => r.json())
+    .then(data => {
+      if (!data.user) return;
+      const u = data.user;
+      document.getElementById('profileDisplayName').textContent = u.username;
+      document.getElementById('profileDisplayEmail').textContent = u.email;
+      document.getElementById('usernameDisplay').innerHTML = u.username + ' <i class="bi bi-pencil edit-icon"></i>';
+      document.getElementById('emailDisplay').innerHTML = u.email + ' <i class="bi bi-pencil edit-icon"></i>';
+      document.getElementById('usernameInput').value = u.username;
+      document.getElementById('emailInput').value = u.email;
+    }).catch(() => {});
+
+  // Toggle popup
+  btn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    const isOpen = popup.classList.contains('open');
+    if (!isOpen) {
+      const rect = btn.getBoundingClientRect();
+      popup.style.top = (rect.bottom + 8) + 'px';
+      popup.style.right = (window.innerWidth - rect.right) + 'px';
+    }
+    popup.classList.toggle('open');
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!popup.contains(e.target) && e.target !== btn) {
+      popup.classList.remove('open');
+      cancelEdit('username');
+      cancelEdit('email');
+    }
+  });
+
+  // --- Inline edit helpers ---
+  function startEdit(field) {
+    document.getElementById(field + 'Display').style.display = 'none';
+    document.getElementById(field + 'Input').style.display = 'block';
+    document.getElementById(field + 'Actions').style.display = 'flex';
+    document.getElementById(field + 'Input').focus();
+  }
+
+  function cancelEdit(field) {
+    document.getElementById(field + 'Display').style.display = '';
+    document.getElementById(field + 'Input').style.display = 'none';
+    document.getElementById(field + 'Actions').style.display = 'none';
+  }
+
+  async function saveField(field) {
+    const msg = document.getElementById('profileMsg');
+    const input = document.getElementById(field + 'Input');
+    const value = input.value.trim();
+    if (!value) return;
+
+    // Build payload with both current values
+    const username = field === 'username' ? value : document.getElementById('usernameInput').value;
+    const email = field === 'email' ? value : document.getElementById('emailInput').value;
+
+    try {
+      const res = await fetch('/profile/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email })
+      });
+      const data = await res.json();
+      msg.style.display = 'block';
+      msg.className = 'profile-msg ' + (data.success ? 'success' : 'error');
+      msg.textContent = data.message;
+      if (data.success) {
+        document.getElementById('usernameDisplay').innerHTML = username + ' <i class="bi bi-pencil edit-icon"></i>';
+        document.getElementById('emailDisplay').innerHTML = email + ' <i class="bi bi-pencil edit-icon"></i>';
+        document.getElementById('profileDisplayName').textContent = username;
+        document.getElementById('profileDisplayEmail').textContent = email;
+        document.getElementById('usernameInput').value = username;
+        document.getElementById('emailInput').value = email;
+        cancelEdit(field);
+      }
+      setTimeout(() => { msg.style.display = 'none'; }, 3000);
+    } catch {
+      msg.style.display = 'block';
+      msg.className = 'profile-msg error';
+      msg.textContent = 'Terjadi kesalahan';
+    }
+  }
+
+  // Username click to edit
+  document.getElementById('usernameDisplay').addEventListener('click', () => startEdit('username'));
+  document.getElementById('saveUsername').addEventListener('click', () => saveField('username'));
+  document.getElementById('cancelUsername').addEventListener('click', () => cancelEdit('username'));
+
+  // Email click to edit
+  document.getElementById('emailDisplay').addEventListener('click', () => startEdit('email'));
+  document.getElementById('saveEmail').addEventListener('click', () => saveField('email'));
+  document.getElementById('cancelEmail').addEventListener('click', () => cancelEdit('email'));
+
+  // Password field → open modal
+  const pwOverlay = document.getElementById('pwModalOverlay');
+  document.getElementById('fieldPassword').addEventListener('click', function (e) {
+    e.stopPropagation();
+    pwOverlay.classList.add('open');
+  });
+  document.getElementById('pwModalClose').addEventListener('click', () => {
+    pwOverlay.classList.remove('open');
+    document.getElementById('passwordForm').reset();
+    document.getElementById('passwordMsg').style.display = 'none';
+  });
+  pwOverlay.addEventListener('click', function (e) {
+    if (e.target === pwOverlay) {
+      pwOverlay.classList.remove('open');
+      document.getElementById('passwordForm').reset();
+      document.getElementById('passwordMsg').style.display = 'none';
+    }
+  });
+
+  // Password form submit
+  document.getElementById('passwordForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const msg = document.getElementById('passwordMsg');
+    const fd = new FormData(this);
+    const body = Object.fromEntries(fd.entries());
+    try {
+      const res = await fetch('/profile/password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      msg.style.display = 'block';
+      msg.className = 'profile-msg ' + (data.success ? 'success' : 'error');
+      msg.textContent = data.message;
+      if (data.success) {
+        this.reset();
+        setTimeout(() => { pwOverlay.classList.remove('open'); msg.style.display = 'none'; }, 1500);
+      }
+    } catch {
+      msg.style.display = 'block';
+      msg.className = 'profile-msg error';
+      msg.textContent = 'Terjadi kesalahan';
+    }
+  });
+})();
+</script>

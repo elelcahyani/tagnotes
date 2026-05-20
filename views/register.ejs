@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet">
+  <style>
+    .auth-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #F8F4FF;
+    }
+    .auth-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 420px;
+      border: 1.5px solid #ede8f5;
+      box-shadow: 0 4px 24px rgba(124,58,237,0.08);
+    }
+    .auth-logo {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .auth-logo .logo-icon { font-size: 2rem; }
+    .auth-logo .logo-text {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      display: block;
+      margin-top: 4px;
+    }
+    .auth-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 4px;
+    }
+    .auth-subtitle {
+      font-size: 0.85rem;
+      color: #888;
+      margin-bottom: 24px;
+    }
+    .auth-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 6px;
+      display: block;
+    }
+    .auth-input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid #e0d8f0;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.875rem;
+      color: #1a1a2e;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      margin-bottom: 16px;
+    }
+    .auth-input:focus {
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
+    }
+    .auth-btn {
+      width: 100%;
+      padding: 12px;
+      background: #1a1a2e;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 4px;
+    }
+    .auth-btn:hover { background: #2d2d4e; }
+    .auth-footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.85rem;
+      color: #888;
+    }
+    .auth-footer a { color: #7c3aed; text-decoration: none; font-weight: 600; }
+    .auth-footer a:hover { text-decoration: underline; }
+    .auth-alert {
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      margin-bottom: 16px;
+    }
+    .auth-alert-error { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+    .password-hint {
+      font-size: 0.72rem;
+      color: #aaa;
+      margin-top: -12px;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <span class="logo-icon">📝</span>
+        <span class="logo-text">Tag Notes</span>
+      </div>
+
+      <h1 class="auth-title">Buat akun baru</h1>
+      <p class="auth-subtitle">Mulai catat ide-idemu sekarang</p>
+
+      <% if (error && error.length > 0) { %>
+        <% error.forEach(e => { %>
+        <div class="auth-alert auth-alert-error"><i class="bi bi-exclamation-circle"></i> <%= e %></div>
+        <% }) %>
+      <% } %>
+
+      <form action="/register" method="POST">
+        <label class="auth-label">Username</label>
+        <input type="text" name="username" class="auth-input" placeholder="Nama kamu" required minlength="2" autocomplete="username">
+
+        <label class="auth-label">Email</label>
+        <input type="email" name="email" class="auth-input" placeholder="kamu@email.com" required autocomplete="email">
+
+        <label class="auth-label">Password</label>
+        <input type="password" name="password" class="auth-input" placeholder="Min. 8 karakter" required minlength="8" autocomplete="new-password" id="regPassword">
+        <p class="password-hint">Minimal 8 karakter, kombinasi huruf dan angka</p>
+
+        <button type="submit" class="auth-btn">Daftar</button>
+      </form>
+
+      <div class="auth-footer">
+        Sudah punya akun? <a href="/login">Masuk di sini</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

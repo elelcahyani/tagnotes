@@ -1,0 +1,153 @@
+<div class="create-page">
+  <div class="create-header">
+    <h1 class="create-title"><%= note ? 'Edit Note' : 'Create Note' %></h1>
+    <p class="create-subtitle"><%= note ? 'Update your thoughts.' : 'Capture your thoughts in the fluid canvas.' %></p>
+  </div>
+
+  <% if (errors && errors.length > 0) { %>
+  <div class="alert alert-danger mb-3">
+    <% errors.forEach(err => { %><div><i class="bi bi-exclamation-circle"></i> <%= err %></div><% }) %>
+  </div>
+  <% } %>
+
+  <form action="<%= note ? '/notes/' + note.id + '?_method=PUT' : '/notes' %>" method="POST" enctype="multipart/form-data" id="noteForm">
+    <div class="create-layout">
+      <!-- Left Column -->
+      <div class="create-left">
+        <div class="create-card">
+          <input 
+            type="text" 
+            name="title" 
+            class="note-title-input" 
+            placeholder="Note Title"
+            value="<%= note && note.title ? note.title : '' %>"
+          >
+          <div class="note-meta-bar">
+            <span class="meta-badge">STATUS: <%= note ? 'SAVED' : 'DRAFT' %></span>
+            <span class="meta-badge">LAST EDITED: JUST NOW</span>
+          </div>
+        </div>
+
+        <div class="create-card">
+          <textarea 
+            name="content" 
+            class="note-content-input" 
+            placeholder="Start writing your thoughts..."
+            rows="12"
+          ><%= note && note.content ? note.content : '' %></textarea>
+        </div>
+      </div>
+
+      <!-- Right Column -->
+      <div class="create-right">
+        <!-- Date -->
+        <div class="meta-card">
+          <div class="meta-card-header">
+            <i class="bi bi-calendar3"></i>
+            <span>Date</span>
+          </div>
+          <input type="date" name="date" class="meta-input" 
+            value="<%= new Date().toISOString().split('T')[0] %>">
+        </div>
+
+        <!-- Tags -->
+        <div class="meta-card">
+          <div class="meta-card-header">
+            <i class="bi bi-tag-fill"></i>
+            <span>Tags</span>
+          </div>
+          <div class="tag-input-area" id="tagInputArea">
+            <% if (note && note.tags && note.tags.length > 0) { %>
+              <% note.tags.forEach(tag => { %>
+              <span class="tag-pill">
+                <%= tag.name %>
+                <button type="button" class="tag-remove" onclick="removeTag(this)">×</button>
+                <input type="hidden" name="tags" value="<%= tag.name %>">
+              </span>
+              <% }) %>
+            <% } %>
+            <input 
+              type="text" 
+              id="tagInput" 
+              class="tag-text-input" 
+              placeholder="Add tag... ENTER"
+            >
+          </div>
+        </div>
+
+        <!-- Links -->
+        <div class="meta-card">
+          <div class="meta-card-header">
+            <i class="bi bi-link-45deg"></i>
+            <span>Links</span>
+            <span class="meta-optional">OPTIONAL</span>
+          </div>
+          <div id="linkList">
+            <% if (note && note.links && note.links.length > 0) { %>
+              <% note.links.forEach(link => { %>
+              <div class="link-item">
+                <a href="<%= link.url %>" target="_blank" class="link-url-text"><%= link.url %></a>
+                <button type="button" class="tag-remove" onclick="removeLink(this)">×</button>
+                <input type="hidden" name="links" value="<%= link.url %>">
+              </div>
+              <% }) %>
+            <% } %>
+          </div>
+          <div class="link-input-wrapper">
+            <input type="url" id="linkInput" class="meta-input" placeholder="https://">
+            <button type="button" class="btn-add-link" id="btnAddLink">ADD</button>
+          </div>
+        </div>
+
+        <!-- Assets / Image Upload -->
+        <div class="meta-card">
+          <div class="meta-card-header">
+            <i class="bi bi-image"></i>
+            <span>Assets</span>
+            <span class="meta-optional">MAX 3 GAMBAR</span>
+          </div>
+
+          <!-- Preview gambar existing (saat edit) -->
+          <% if (note && note.images && note.images.length > 0) { %>
+          <div class="upload-existing" id="existingImages">
+            <p class="upload-hint" style="margin-bottom:8px;">Gambar saat ini:</p>
+            <div class="upload-existing-grid" id="existingGrid">
+              <% note.images.forEach(img => { %>
+              <div class="existing-img-item" data-id="<%= img.id %>">
+                <img src="<%= img.url %>" alt="image">
+                <button type="button" class="img-remove-btn" onclick="removeExistingImage(this)" title="Hapus">×</button>
+                <input type="hidden" name="keep_images" value="<%= img.id %>">
+              </div>
+              <% }) %>
+            </div>
+          </div>
+          <% } %>
+
+          <!-- Preview gambar baru -->
+          <div id="newImagePreviews" class="upload-existing-grid" style="margin-bottom:8px;"></div>
+
+          <div class="upload-area" id="uploadArea">
+            <label for="imageInput" class="upload-label">
+              <i class="bi bi-cloud-upload"></i>
+              <span>Upload Gambar (maks. 3)</span>
+              <small>JPG, PNG, GIF, WebP · Max 5MB per file</small>
+            </label>
+            <input type="file" name="images" id="imageInput" 
+              accept="image/jpeg,image/png,image/gif,image/webp" 
+              multiple style="display:none">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Actions -->
+    <div class="create-footer">
+      <a href="/" class="btn-cancel">CANCEL</a>
+      <button type="submit" class="btn-save">
+        <i class="bi bi-check-circle-fill"></i>
+        SAVE NOTE
+        <span class="btn-sparkle">✦</span>
+      </button>
+    </div>
+  </form>
+</div>

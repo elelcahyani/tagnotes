@@ -1,0 +1,35 @@
+<div class="sidebar-inner">
+  <div class="sidebar-logo">
+    <a href="/" class="logo-link">
+      <span class="logo-icon">📝</span>
+      <span class="logo-text">Tag Notes</span>
+    </a>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a href="/" class="nav-item <%= (typeof activeTag === 'undefined' || !activeTag) && (typeof search === 'undefined' || !search) ? 'active' : '' %>">
+      <i class="bi bi-journal-text"></i>
+      <span>All Notes</span>
+    </a>
+  </nav>
+
+  <% if (typeof tags !== 'undefined' && tags.length > 0) { %>
+  <div class="sidebar-tags">
+    <p class="sidebar-section-label">TAGS</p>
+    <% tags.forEach(tag => { %>
+    <a href="/?tag=<%= encodeURIComponent(tag.name) %>" 
+       class="tag-filter-item <%= (typeof activeTag !== 'undefined' && activeTag === tag.name) ? 'active' : '' %>">
+      <i class="bi bi-tag-fill"></i>
+      <span><%= tag.name %></span>
+    </a>
+    <% }) %>
+  </div>
+  <% } %>
+
+  <div class="sidebar-footer">
+    <a href="/notes/new" class="btn-add-note <%= (typeof locals.title !== 'undefined' && (locals.title.includes('Buat') || locals.title.includes('Edit'))) ? 'btn-add-note--active' : '' %>">
+      <i class="bi bi-plus-lg"></i>
+      <span>Add Note</span>
+    </a>
+  </div>
+</div>
