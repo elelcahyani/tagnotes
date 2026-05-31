@@ -88,18 +88,29 @@
     imageInput.files = dt.files;
   }
 
+  function getExistingCount() {
+    const existingGrid = document.getElementById('existingGrid');
+    return existingGrid ? existingGrid.querySelectorAll('.existing-img-item').length : 0;
+  }
+
   function updateLabel() {
     if (!uploadLabel) return;
-    const remaining = MAX - selectedFiles.length;
+    const existingCount = getExistingCount();
+    const total = selectedFiles.length + existingCount;
+    const remaining = MAX - total;
+    
     const span = uploadLabel.querySelector('span');
     if (span) {
       span.textContent = remaining > 0
-        ? `Upload Gambar (${selectedFiles.length}/${MAX} — klik untuk tambah)`
+        ? `Upload Gambar (${total}/${MAX} — klik untuk tambah)`
         : `Maksimal ${MAX} gambar tercapai`;
     }
     uploadLabel.style.opacity = remaining > 0 ? '1' : '0.4';
     uploadLabel.style.pointerEvents = remaining > 0 ? 'auto' : 'none';
   }
+
+  // Dengarkan event ketika gambar existing dihapus
+  document.addEventListener('existingImageRemoved', updateLabel);
 
   function renderPreviews() {
     previewGrid.innerHTML = '';
@@ -137,7 +148,8 @@
         alert('File terlalu besar (max 5MB): ' + file.name);
         continue;
       }
-      if (selectedFiles.length >= MAX) {
+      const existingCount = getExistingCount();
+      if (selectedFiles.length + existingCount >= MAX) {
         alert('Maksimal ' + MAX + ' gambar.');
         break;
       }
@@ -184,6 +196,7 @@ window.removeExistingImage = function (btn) {
     noteForm.appendChild(del);
   }
   item.remove();
+  document.dispatchEvent(new Event('existingImageRemoved'));
 };
 
 /* ===== Link Input Behavior ===== */
