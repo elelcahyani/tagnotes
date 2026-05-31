@@ -15,73 +15,65 @@
       <!-- Left Column -->
       <div class="create-left">
         <div class="create-card">
-          <input 
-            type="text" 
-            name="title" 
-            class="note-title-input" 
-            placeholder="Note Title"
-            value="<%= note && note.title ? note.title : '' %>"
-          >
+          <input type="text" name="title" class="note-title-input" placeholder="Note Title"
+            value="<%= note && note.title ? note.title : '' %>">
           <div class="note-meta-bar">
             <span class="meta-badge">STATUS: <%= note ? 'SAVED' : 'DRAFT' %></span>
             <span class="meta-badge">LAST EDITED: JUST NOW</span>
           </div>
+          <!-- Mobile icon bar -->
+          <div class="mobile-meta-bar">
+            <button type="button" class="mobile-meta-icon-btn" data-sheet="sheetDate" title="Date">
+              <i class="bi bi-calendar3"></i>
+              <span class="mobile-meta-badge" id="badgeDate" style="display:none;">✓</span>
+            </button>
+            <button type="button" class="mobile-meta-icon-btn" data-sheet="sheetTags" title="Tags">
+              <i class="bi bi-tag-fill"></i>
+              <span class="mobile-meta-badge" id="badgeTags" style="display:none;"></span>
+            </button>
+            <button type="button" class="mobile-meta-icon-btn" data-sheet="sheetLinks" title="Links">
+              <i class="bi bi-link-45deg"></i>
+              <span class="mobile-meta-badge" id="badgeLinks" style="display:none;"></span>
+            </button>
+            <button type="button" class="mobile-meta-icon-btn" data-sheet="sheetAssets" title="Assets">
+              <i class="bi bi-image"></i>
+              <span class="mobile-meta-badge" id="badgeAssets" style="display:none;"></span>
+            </button>
+          </div>
         </div>
 
         <div class="create-card">
-          <textarea 
-            name="content" 
-            class="note-content-input" 
-            placeholder="Start writing your thoughts..."
-            rows="12"
-          ><%= note && note.content ? note.content : '' %></textarea>
+          <textarea name="content" class="note-content-input" placeholder="Start writing your thoughts..." rows="12"><%= note && note.content ? note.content : '' %></textarea>
         </div>
       </div>
 
-      <!-- Right Column -->
+      <!-- Right Column (desktop only) -->
       <div class="create-right">
-        <!-- Date -->
         <div class="meta-card">
-          <div class="meta-card-header">
-            <i class="bi bi-calendar3"></i>
-            <span>Date</span>
-          </div>
-          <input type="date" name="date" class="meta-input" 
-            value="<%= new Date().toISOString().split('T')[0] %>">
+          <div class="meta-card-header"><i class="bi bi-calendar3"></i><span>Date</span></div>
+          <input type="date" name="date" class="meta-input" value="<%= new Date().toISOString().split('T')[0] %>">
         </div>
 
-        <!-- Tags -->
         <div class="meta-card">
-          <div class="meta-card-header">
-            <i class="bi bi-tag-fill"></i>
-            <span>Tags</span>
-          </div>
-          <div class="tag-input-area" id="tagInputArea">
+          <div class="meta-card-header"><i class="bi bi-tag-fill"></i><span>Tags</span></div>
+          <div class="tag-input-area" id="tagInputArea" style="margin-bottom: 10px;">
             <% if (note && note.tags && note.tags.length > 0) { %>
               <% note.tags.forEach(tag => { %>
-              <span class="tag-pill">
-                <%= tag.name %>
+              <span class="tag-pill"><%= tag.name %>
                 <button type="button" class="tag-remove" onclick="removeTag(this)">×</button>
                 <input type="hidden" name="tags" value="<%= tag.name %>">
               </span>
               <% }) %>
             <% } %>
-            <input 
-              type="text" 
-              id="tagInput" 
-              class="tag-text-input" 
-              placeholder="Add tag... ENTER"
-            >
+          </div>
+          <div class="link-input-wrapper">
+            <input type="text" id="tagInput" class="meta-input" placeholder="Add tag...">
+            <button type="button" class="btn-add-link" id="btnAddTag">ADD</button>
           </div>
         </div>
 
-        <!-- Links -->
         <div class="meta-card">
-          <div class="meta-card-header">
-            <i class="bi bi-link-45deg"></i>
-            <span>Links</span>
-            <span class="meta-optional">OPTIONAL</span>
-          </div>
+          <div class="meta-card-header"><i class="bi bi-link-45deg"></i><span>Links</span><span class="meta-optional">OPTIONAL</span></div>
           <div id="linkList">
             <% if (note && note.links && note.links.length > 0) { %>
               <% note.links.forEach(link => { %>
@@ -99,15 +91,8 @@
           </div>
         </div>
 
-        <!-- Assets / Image Upload -->
         <div class="meta-card">
-          <div class="meta-card-header">
-            <i class="bi bi-image"></i>
-            <span>Assets</span>
-            <span class="meta-optional">MAX 3 GAMBAR</span>
-          </div>
-
-          <!-- Preview gambar existing (saat edit) -->
+          <div class="meta-card-header"><i class="bi bi-image"></i><span>Assets</span><span class="meta-optional">MAX 3 GAMBAR</span></div>
           <% if (note && note.images && note.images.length > 0) { %>
           <div class="upload-existing" id="existingImages">
             <p class="upload-hint" style="margin-bottom:8px;">Gambar saat ini:</p>
@@ -122,32 +107,503 @@
             </div>
           </div>
           <% } %>
-
-          <!-- Preview gambar baru -->
           <div id="newImagePreviews" class="upload-existing-grid" style="margin-bottom:8px;"></div>
-
           <div class="upload-area" id="uploadArea">
             <label for="imageInput" class="upload-label">
               <i class="bi bi-cloud-upload"></i>
               <span>Upload Gambar (maks. 3)</span>
               <small>JPG, PNG, GIF, WebP · Max 5MB per file</small>
             </label>
-            <input type="file" name="images" id="imageInput" 
-              accept="image/jpeg,image/png,image/gif,image/webp" 
-              multiple style="display:none">
+            <input type="file" name="images" id="imageInput" accept="image/jpeg,image/png,image/gif,image/webp" multiple style="display:none">
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Footer Actions -->
+    <!-- Footer -->
     <div class="create-footer">
       <a href="/" class="btn-cancel">CANCEL</a>
       <button type="submit" class="btn-save">
-        <i class="bi bi-check-circle-fill"></i>
-        SAVE NOTE
-        <span class="btn-sparkle">✦</span>
+        <i class="bi bi-check-circle-fill"></i> SAVE NOTE <span class="btn-sparkle">✦</span>
       </button>
     </div>
   </form>
 </div>
+
+<!-- ===== BOTTOM SHEETS ===== -->
+<div class="sheet-overlay" id="sheetOverlay"></div>
+
+<!-- Sheet: Date -->
+<div class="bottom-sheet" id="sheetDate">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span><i class="bi bi-calendar3"></i> Tanggal</span>
+    <button type="button" class="sheet-close" data-close="sheetDate"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <div class="sheet-body">
+    <label class="profile-label">Pilih tanggal</label>
+    <input type="date" id="sheetDateInput" class="meta-input" value="<%= new Date().toISOString().split('T')[0] %>">
+  </div>
+  <div class="sheet-footer">
+    <button type="button" class="sheet-btn-cancel" data-close="sheetDate">Batal</button>
+    <button type="button" class="sheet-btn-save" id="saveDateBtn">Simpan</button>
+  </div>
+</div>
+
+<!-- Sheet: Tags -->
+<div class="bottom-sheet" id="sheetTags">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span><i class="bi bi-tag-fill"></i> Tags</span>
+    <button type="button" class="sheet-close" data-close="sheetTags"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <div class="sheet-body">
+    <div class="tag-input-area" id="tagAreaMobile" style="min-height:48px; margin-bottom:10px;">
+      <% if (note && note.tags && note.tags.length > 0) { %>
+        <% note.tags.forEach(tag => { %>
+        <span class="tag-pill"><%= tag.name %>
+          <button type="button" class="tag-remove" onclick="removeMobileTag(this)">×</button>
+          <input type="hidden" name="_mtag" value="<%= tag.name %>">
+        </span>
+        <% }) %>
+      <% } %>
+    </div>
+    <div class="link-input-wrapper">
+      <input type="text" id="tagInputMobile" class="meta-input" placeholder="Ketik tag...">
+      <button type="button" class="btn-add-link" id="btnAddTagMobile">ADD</button>
+    </div>
+  </div>
+  <div class="sheet-footer">
+    <button type="button" class="sheet-btn-cancel" data-close="sheetTags">Batal</button>
+    <button type="button" class="sheet-btn-save" id="saveTagsBtn">Simpan</button>
+  </div>
+</div>
+
+<!-- Sheet: Links -->
+<div class="bottom-sheet" id="sheetLinks">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span><i class="bi bi-link-45deg"></i> Links</span>
+    <button type="button" class="sheet-close" data-close="sheetLinks"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <div class="sheet-body">
+    <div id="linkListMobile" style="margin-bottom:10px;"></div>
+    <div class="link-input-wrapper">
+      <input type="url" id="linkInputMobile" class="meta-input" placeholder="https://">
+      <button type="button" class="btn-add-link" id="btnAddLinkMobile">ADD</button>
+    </div>
+  </div>
+  <div class="sheet-footer">
+    <button type="button" class="sheet-btn-cancel" data-close="sheetLinks">Batal</button>
+    <button type="button" class="sheet-btn-save" id="saveLinksBtn">Simpan</button>
+  </div>
+</div>
+
+<!-- Sheet: Assets -->
+<div class="bottom-sheet" id="sheetAssets">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span><i class="bi bi-image"></i> Assets</span>
+    <button type="button" class="sheet-close" data-close="sheetAssets"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <div class="sheet-body">
+    <% if (note && note.images && note.images.length > 0) { %>
+    <div class="upload-existing-grid" id="existingGridMobile" style="margin-bottom:10px;">
+      <% note.images.forEach(img => { %>
+      <div class="existing-img-item" data-id="<%= img.id %>">
+        <img src="<%= img.url %>" alt="image">
+        <button type="button" class="img-remove-btn" onclick="removeMobileExisting(this)">×</button>
+        <input type="hidden" name="_mkeep" value="<%= img.id %>">
+      </div>
+      <% }) %>
+    </div>
+    <% } %>
+    <div id="newPreviewsMobile" class="upload-existing-grid" style="margin-bottom:10px;"></div>
+    <div class="upload-area" id="uploadAreaMobile">
+      <label for="imgInputMobile" class="upload-label">
+        <i class="bi bi-cloud-upload"></i>
+        <span id="uploadSpanMobile">Upload Gambar (maks. 3)</span>
+        <small>JPG, PNG, GIF, WebP · Max 5MB</small>
+      </label>
+      <input type="file" id="imgInputMobile" accept="image/jpeg,image/png,image/gif,image/webp" multiple style="display:none">
+    </div>
+  </div>
+  <div class="sheet-footer">
+    <button type="button" class="sheet-btn-cancel" data-close="sheetAssets">Batal</button>
+    <button type="button" class="sheet-btn-save" id="saveAssetsBtn">Simpan</button>
+  </div>
+</div>
+
+<style>
+.mobile-meta-bar { display: none; }
+.bottom-sheet { display: none; }
+.sheet-overlay { display: none; }
+
+@media (max-width: 768px) {
+  .create-right { display: none !important; }
+  .create-layout { grid-template-columns: 1fr !important; }
+
+  .mobile-meta-bar {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .mobile-meta-icon-btn {
+    position: relative;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    border: 1.5px solid #e0d8f0;
+    background: #f5f3ff;
+    color: #7c3aed;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .mobile-meta-icon-btn.has-value {
+    background: #7c3aed;
+    color: #fff;
+    border-color: #7c3aed;
+  }
+  .mobile-meta-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 3px;
+  }
+
+  .sheet-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 1000;
+  }
+  .sheet-overlay.open { display: block; }
+
+  .bottom-sheet {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-radius: 20px 20px 0 0;
+    z-index: 1001;
+    transform: translateY(100%);
+    transition: transform 0.28s cubic-bezier(.4,0,.2,1);
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .bottom-sheet.open { transform: translateY(0); }
+
+  .sheet-handle {
+    width: 40px; height: 4px;
+    background: #e0d8f0;
+    border-radius: 2px;
+    margin: 12px auto 0;
+    flex-shrink: 0;
+  }
+  .sheet-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    border-bottom: 1px solid #f0ebff;
+    flex-shrink: 0;
+  }
+  .sheet-close {
+    background: none; border: none;
+    color: #aaa; font-size: 1rem; cursor: pointer; padding: 4px;
+  }
+  .sheet-body {
+    padding: 16px 20px;
+    overflow-y: auto;
+    flex: 1;
+    -webkit-overflow-scrolling: touch;
+  }
+  .sheet-footer {
+    display: flex;
+    gap: 10px;
+    padding: 12px 20px 32px;
+    border-top: 1px solid #f0ebff;
+    flex-shrink: 0;
+    background: #fff;
+  }
+  .sheet-btn-cancel {
+    flex: 1; padding: 12px;
+    background: none;
+    border: 1.5px solid #e0d8f0;
+    border-radius: 10px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.85rem; font-weight: 600; color: #888; cursor: pointer;
+  }
+  .sheet-btn-save {
+    flex: 2; padding: 12px;
+    background: #1a1a2e; border: none;
+    border-radius: 10px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.85rem; font-weight: 700; color: #fff; cursor: pointer;
+  }
+}
+</style>
+
+<script>
+(function () {
+  if (window.innerWidth > 768) return;
+
+  var overlay = document.getElementById('sheetOverlay');
+
+  function openSheet(id) {
+    document.querySelectorAll('.bottom-sheet').forEach(function(s){ s.classList.remove('open'); });
+    document.getElementById(id).classList.add('open');
+    overlay.classList.add('open');
+  }
+
+  function closeSheet(id) {
+    document.getElementById(id).classList.remove('open');
+    overlay.classList.remove('open');
+  }
+
+  // Open
+  document.querySelectorAll('.mobile-meta-icon-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() { openSheet(btn.dataset.sheet); });
+  });
+
+  // Close via X or cancel
+  document.querySelectorAll('[data-close]').forEach(function(btn) {
+    btn.addEventListener('click', function() { closeSheet(btn.dataset.close); });
+  });
+
+  // Close via overlay
+  overlay.addEventListener('click', function() {
+    document.querySelectorAll('.bottom-sheet').forEach(function(s){ s.classList.remove('open'); });
+    overlay.classList.remove('open');
+  });
+
+  // ===== DATE =====
+  var sheetDateInput = document.getElementById('sheetDateInput');
+  document.getElementById('saveDateBtn').addEventListener('click', function() {
+    var val = sheetDateInput.value;
+    var h = document.getElementById('_hiddenDate');
+    if (!h) {
+      h = document.createElement('input');
+      h.type = 'hidden'; h.name = 'date'; h.id = '_hiddenDate';
+      document.getElementById('noteForm').appendChild(h);
+    }
+    h.value = val;
+    var badge = document.getElementById('badgeDate');
+    badge.style.display = val ? 'flex' : 'none';
+    document.querySelector('[data-sheet="sheetDate"]').classList.toggle('has-value', !!val);
+    closeSheet('sheetDate');
+  });
+
+  // ===== TAGS =====
+  var tagAreaMobile = document.getElementById('tagAreaMobile');
+  var tagInputMobile = document.getElementById('tagInputMobile');
+
+  function updateTagBadge() {
+    var count = tagAreaMobile.querySelectorAll('input[name="_mtag"]').length;
+    var badge = document.getElementById('badgeTags');
+    badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none';
+    document.querySelector('[data-sheet="sheetTags"]').classList.toggle('has-value', count > 0);
+  }
+
+  window.removeMobileTag = function(btn) { btn.closest('.tag-pill').remove(); updateTagBadge(); };
+
+  var btnAddTagMobile = document.getElementById('btnAddTagMobile');
+  if(btnAddTagMobile) {
+    btnAddTagMobile.addEventListener('click', function() {
+      var val = tagInputMobile.value.trim();
+      if (val) { addMobileTag(val); tagInputMobile.value = ''; }
+    });
+  }
+  tagInputMobile.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      var val = this.value.trim();
+      if (val) { addMobileTag(val); this.value = ''; }
+    }
+    if (e.key === 'Backspace' && this.value === '') {
+      var pills = tagAreaMobile.querySelectorAll('.tag-pill');
+      if (pills.length) { pills[pills.length-1].remove(); updateTagBadge(); }
+    }
+  });
+
+  function addMobileTag(name) {
+    var existing = tagAreaMobile.querySelectorAll('input[name="_mtag"]');
+    for (var i=0; i<existing.length; i++) { if (existing[i].value.toLowerCase()===name.toLowerCase()) return; }
+    var pill = document.createElement('span');
+    pill.className = 'tag-pill';
+    pill.innerHTML = name + '<button type="button" class="tag-remove" onclick="removeMobileTag(this)">×</button><input type="hidden" name="_mtag" value="'+name+'">';
+    tagAreaMobile.appendChild(pill);
+    updateTagBadge();
+  }
+
+  document.getElementById('saveTagsBtn').addEventListener('click', function() {
+    // Remove all existing tags from form, inject from mobile sheet
+    document.querySelectorAll('#noteForm input[name="tags"]').forEach(function(el){ el.remove(); });
+    tagAreaMobile.querySelectorAll('input[name="_mtag"]').forEach(function(inp) {
+      var h = document.createElement('input');
+      h.type='hidden'; h.name='tags'; h.value=inp.value;
+      document.getElementById('noteForm').appendChild(h);
+    });
+    updateTagBadge();
+    closeSheet('sheetTags');
+  });
+
+  updateTagBadge();
+
+  // ===== LINKS =====
+  var linkListMobile = document.getElementById('linkListMobile');
+  var linkInputMobile = document.getElementById('linkInputMobile');
+
+  // Pre-populate existing links
+  <% if (note && note.links && note.links.length > 0) { note.links.forEach(function(link) { %>
+  (function(){
+    var item = document.createElement('div');
+    item.className = 'link-item';
+    item.innerHTML = '<a href="<%- link.url.replace(/"/g,"&quot;") %>" target="_blank" class="link-url-text"><%- link.url %></a><button type="button" class="tag-remove" onclick="removeMobileLink(this)">×</button><input type="hidden" name="_mlink" value="<%- link.url.replace(/"/g,"&quot;") %>">';
+    linkListMobile.appendChild(item);
+  })();
+  <% }); } %>
+
+  function updateLinkBadge() {
+    var count = linkListMobile.querySelectorAll('input[name="_mlink"]').length;
+    var badge = document.getElementById('badgeLinks');
+    badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none';
+    document.querySelector('[data-sheet="sheetLinks"]').classList.toggle('has-value', count > 0);
+  }
+
+  window.removeMobileLink = function(btn) { btn.closest('.link-item').remove(); updateLinkBadge(); };
+
+  function addMobileLink(url) {
+    url = url.trim(); if (!url) return;
+    var existing = linkListMobile.querySelectorAll('input[name="_mlink"]');
+    for (var i=0; i<existing.length; i++) { if (existing[i].value===url) return; }
+    var item = document.createElement('div');
+    item.className = 'link-item';
+    item.innerHTML = '<a href="'+url+'" target="_blank" class="link-url-text">'+url+'</a><button type="button" class="tag-remove" onclick="removeMobileLink(this)">×</button><input type="hidden" name="_mlink" value="'+url+'">';
+    linkListMobile.appendChild(item);
+    linkInputMobile.value = '';
+    updateLinkBadge();
+  }
+
+  document.getElementById('btnAddLinkMobile').addEventListener('click', function() { addMobileLink(linkInputMobile.value); });
+  linkInputMobile.addEventListener('keydown', function(e) { if (e.key==='Enter') { e.preventDefault(); addMobileLink(this.value); } });
+
+  document.getElementById('saveLinksBtn').addEventListener('click', function() {
+    document.querySelectorAll('#noteForm input[name="links"]').forEach(function(el){ el.remove(); });
+    linkListMobile.querySelectorAll('input[name="_mlink"]').forEach(function(inp) {
+      var h = document.createElement('input');
+      h.type='hidden'; h.name='links'; h.value=inp.value;
+      document.getElementById('noteForm').appendChild(h);
+    });
+    updateLinkBadge();
+    closeSheet('sheetLinks');
+  });
+
+  updateLinkBadge();
+
+  // ===== ASSETS =====
+  var imgInputMobile = document.getElementById('imgInputMobile');
+  var newPreviewsMobile = document.getElementById('newPreviewsMobile');
+  var selectedFiles = [];
+  var MAX_IMG = 3;
+
+  function updateAssetBadge() {
+    var existing = document.querySelectorAll('#existingGridMobile .existing-img-item').length;
+    var count = existing + selectedFiles.length;
+    var badge = document.getElementById('badgeAssets');
+    badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none';
+    document.querySelector('[data-sheet="sheetAssets"]').classList.toggle('has-value', count > 0);
+    var span = document.getElementById('uploadSpanMobile');
+    if (span) span.textContent = 'Upload Gambar (' + (existing + selectedFiles.length) + '/' + MAX_IMG + ')';
+  }
+
+  window.removeMobileExisting = function(btn) {
+    var item = btn.closest('.existing-img-item');
+    var id = item.dataset.id;
+    var del = document.createElement('input');
+    del.type='hidden'; del.name='delete_images'; del.value=id;
+    document.getElementById('noteForm').appendChild(del);
+    item.remove();
+    updateAssetBadge();
+  };
+
+  if (imgInputMobile) {
+    imgInputMobile.addEventListener('change', function() {
+      Array.from(this.files).forEach(function(file) {
+        if (!['image/jpeg','image/png','image/gif','image/webp'].includes(file.type)) return;
+        if (file.size > 5*1024*1024) return;
+        if (selectedFiles.length >= MAX_IMG) return;
+        selectedFiles.push(file);
+      });
+      this.value = '';
+      renderPreviews();
+    });
+  }
+
+  function renderPreviews() {
+    newPreviewsMobile.innerHTML = '';
+    selectedFiles.forEach(function(file, idx) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var div = document.createElement('div');
+        div.className = 'new-img-preview';
+        div.innerHTML = '<img src="'+e.target.result+'" alt="preview"><button type="button" class="img-remove-btn" data-idx="'+idx+'">×</button>';
+        div.querySelector('.img-remove-btn').addEventListener('click', function() {
+          selectedFiles.splice(parseInt(this.dataset.idx), 1);
+          renderPreviews(); updateAssetBadge();
+        });
+        newPreviewsMobile.appendChild(div);
+        updateAssetBadge();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  document.getElementById('saveAssetsBtn').addEventListener('click', function() {
+    // Sync keep_images
+    document.querySelectorAll('#noteForm input[name="keep_images"]').forEach(function(el){ el.remove(); });
+    document.querySelectorAll('#existingGridMobile input[name="_mkeep"]').forEach(function(inp) {
+      var h = document.createElement('input');
+      h.type='hidden'; h.name='keep_images'; h.value=inp.value;
+      document.getElementById('noteForm').appendChild(h);
+    });
+    // Sync new files via hidden file input
+    var fi = document.getElementById('_mobileFiles');
+    if (!fi) {
+      fi = document.createElement('input');
+      fi.type='file'; fi.name='images'; fi.id='_mobileFiles';
+      fi.multiple=true; fi.style.display='none';
+      document.getElementById('noteForm').appendChild(fi);
+    }
+    var dt = new DataTransfer();
+    selectedFiles.forEach(function(f){ dt.items.add(f); });
+    fi.files = dt.files;
+    updateAssetBadge();
+    closeSheet('sheetAssets');
+  });
+
+  updateAssetBadge();
+})();
+</script>

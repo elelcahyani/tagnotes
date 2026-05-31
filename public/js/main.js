@@ -2,10 +2,16 @@
 (function () {
   const tagInput = document.getElementById('tagInput');
   const tagInputArea = document.getElementById('tagInputArea');
+  const btnAddTag = document.getElementById('btnAddTag');
 
-  if (tagInput && tagInputArea) {
-    // Focus area when clicking anywhere in the tag container
-    tagInputArea.addEventListener('click', () => tagInput.focus());
+  if (tagInput && tagInputArea && btnAddTag) {
+    btnAddTag.addEventListener('click', function () {
+      const value = tagInput.value.trim();
+      if (value) {
+        addTag(value);
+        tagInput.value = '';
+      }
+    });
 
     tagInput.addEventListener('keydown', function (e) {
       if (e.key === 'Enter') {
@@ -43,8 +49,8 @@
       <input type="hidden" name="tags" value="${escapeHtml(name)}">
     `;
 
-    // Insert before the text input
-    tagInputArea.insertBefore(pill, tagInput);
+    // Append to area
+    tagInputArea.appendChild(pill);
   }
 
   function escapeHtml(str) {

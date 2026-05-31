@@ -1,4 +1,9 @@
 <header class="app-header">
+  <!-- Burger button (mobile only) -->
+  <button class="burger-btn" id="burgerBtn" aria-label="Menu">
+    <i class="bi bi-list"></i>
+  </button>
+
   <div class="header-search">
     <form action="/" method="GET" class="search-form">
       <% if (typeof activeTag !== 'undefined' && activeTag) { %>
